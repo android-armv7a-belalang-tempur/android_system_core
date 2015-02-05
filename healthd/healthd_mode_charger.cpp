@@ -41,7 +41,7 @@
 #include <cutils/properties.h>
 
 #ifdef CHARGER_ENABLE_SUSPEND
-#include <suspend/autosuspend.h>
+#include "../../../../system/core/libsuspend/include/suspend/autosuspend.h"
 #endif
 
 #include "minui/minui.h"
