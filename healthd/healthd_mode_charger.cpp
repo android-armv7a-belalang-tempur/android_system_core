@@ -782,14 +782,6 @@ static void handle_power_supply_state(struct charger *charger, int64_t now)
     if (!charger->charger_connected) {
         request_suspend(false);
         if (charger->next_pwr_check == -1) {
-            if (mode == QUICKBOOT) {
-                gr_fb_blank(true);
-                request_suspend(true);
-                /* exit here. There is no need to keep running when charger
-                 * unplugged under QuickBoot mode
-                 */
-                exit(0);
-            }
             charger->next_pwr_check = now + UNPLUGGED_SHUTDOWN_TIME;
             LOGI("[%" PRId64 "] device unplugged: shutting down in %" PRId64 " (@ %" PRId64 ")\n",
                  now, (int64_t)UNPLUGGED_SHUTDOWN_TIME, charger->next_pwr_check);
@@ -903,16 +895,6 @@ void healthd_mode_charger_init(struct healthd_config* /*config*/)
     dump_last_kmsg();
 
     LOGI("--------------- STARTING CHARGER MODE ---------------\n");
-
-    if (mode == NORMAL) {
-        /* check the charging is enabled or not */
-        ret = read_file_int(CHARGING_ENABLED_PATH, &charging_enabled);
-        if (!ret && !charging_enabled) {
-            /* if charging is disabled, reboot and exit power off charging */
-            LOGI("android charging is disabled, exit!\n");
-            android_reboot(ANDROID_RB_RESTART, 0, 0);
-        }
-    }
 
     ret = ev_init(input_callback, charger);
     if (!ret) {
