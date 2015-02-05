@@ -5,7 +5,7 @@ ifneq ($(BUILD_TINY_ANDROID),true)
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := healthd_board_default.cpp healthd_msm_alarm.cpp
+LOCAL_SRC_FILES := healthd_board_default.cpp
 LOCAL_MODULE := libhealthd.default
 LOCAL_CFLAGS := -Werror
 include $(BUILD_STATIC_LIBRARY)
@@ -27,18 +27,6 @@ LOCAL_UNSTRIPPED_PATH := $(TARGET_ROOT_OUT_SBIN_UNSTRIPPED)
 
 LOCAL_CFLAGS := -D__STDC_LIMIT_MACROS -Werror
 
-HEALTHD_CHARGER_DEFINES := RED_LED_PATH \
-    GREEN_LED_PATH \
-    BLUE_LED_PATH \
-    BACKLIGHT_PATH \
-    CHARGING_ENABLED_PATH
-
-$(foreach healthd_charger_define,$(HEALTHD_CHARGER_DEFINES), \
-  $(if $($(healthd_charger_define)), \
-    $(eval LOCAL_CFLAGS += -D$(healthd_charger_define)=\"$($(healthd_charger_define))\") \
-  ) \
-)
-
 ifeq ($(strip $(BOARD_CHARGER_DISABLE_INIT_BLANK)),true)
 LOCAL_CFLAGS += -DCHARGER_DISABLE_INIT_BLANK
 endif
@@ -47,7 +35,7 @@ ifeq ($(strip $(BOARD_CHARGER_ENABLE_SUSPEND)),true)
 LOCAL_CFLAGS += -DCHARGER_ENABLE_SUSPEND
 endif
 
-LOCAL_C_INCLUDES := $(call project-path-for,recovery)
+LOCAL_C_INCLUDES := bootable/recovery
 
 LOCAL_STATIC_LIBRARIES := libbatteryservice libbinder libminui libpng libz libutils libstdc++ libcutils liblog libm libc
 
@@ -59,7 +47,7 @@ LOCAL_HAL_STATIC_LIBRARIES := libhealthd
 
 # Symlink /charger to /sbin/healthd
 LOCAL_POST_INSTALL_CMD := $(hide) mkdir -p $(TARGET_ROOT_OUT) \
-    && rm -f $(TARGET_ROOT_OUT)/charger && ln -sf /sbin/healthd $(TARGET_ROOT_OUT)/charger
+    && ln -sf /sbin/healthd $(TARGET_ROOT_OUT)/charger
 
 include $(BUILD_EXECUTABLE)
 
